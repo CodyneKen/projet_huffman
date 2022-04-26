@@ -1,0 +1,9 @@
+Historique des versions:
+
+huff_v0.1.c : A FAIRE AVEC FREAD q1, affiche les 10 premières lignes du fichier passé en argument
+
+huff_v0.2.c : Affiche l'intégralité du fichier passé en argument 
+
+huff_v0.3.c : Ajout de la fonction occurrence qui compte le nombre d'occurrence de chaque char du fichier
+
+huff_v1.1.c : 
