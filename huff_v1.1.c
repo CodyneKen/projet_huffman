@@ -1,23 +1,10 @@
-#include "huff.h"
-
-void occurence(FILE *fic, int tab[N_CHAR]){
-  char c = '\0';
-  while ( (c = fgetc(fic)) != EOF ){
-    if(c<N_CHAR){
-      /* printf("%c", c); */
-      tab[(int)(c)]++;
-    }
-    else
-      printf("not a char supported :%c", c);
-  }
-  printf("\n");
-}
+#include <stdio.h>
+#include <stdlib.h>
 
 int main (int argc, char** argv){
         
   FILE* f;
-  int *occ = calloc(N_CHAR, sizeof(int));
-  int i;
+  char c = '\0';
 
   if (argc<2){
     printf("Merci de fournir un nom de fichier\n");
@@ -25,11 +12,7 @@ int main (int argc, char** argv){
   }
 /* on essaye d'ouvrir le fichier, erreur sinon :*/
   if ((f = fopen(argv[1], "r"))){
-    occurence(f, occ);
+      while ( (c = fgetc(f)) != EOF )
+        printf("%c", c);
   }
-  printf("occurences :");
-  for (i=0; i<N_CHAR; i++)
-    printf("%d",occ[i]);
-  printf("\n");
-  
 }

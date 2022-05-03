@@ -13,7 +13,7 @@ typedef struct noeud {
   int bit_num;
   struct noeud *gauche;
   struct noeud *droite;
-}
+}noeud;
 
 void occurence(FILE *fic, int tab[256]);
 
