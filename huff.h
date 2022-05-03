@@ -10,7 +10,7 @@ typedef struct noeud {
   char c;
   int occ;
   int enc[BIT_ENC];
-  int bit_num;
+  int nb_bit;
   struct noeud *gauche;
   struct noeud *droite;
 }
