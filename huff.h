@@ -15,7 +15,6 @@ typedef struct noeud {
     struct noeud *droite;
 } noeud;
 
-noeud *arbre_huffman[N_CHAR];
 
 void occurence(FILE *fic, int tab[256]);
 

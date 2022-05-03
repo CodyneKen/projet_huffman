@@ -2,11 +2,7 @@
 #include <stdlib.h>
 
 int main (int argc, char** argv){
-        
-  FILE* f;
-  char c = '\0';
->>>>>>> coco
-
+ 
     FILE *f;
     char str[15 * 2 + 1];
     if (argc < 2) {
