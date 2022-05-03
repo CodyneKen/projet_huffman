@@ -15,7 +15,6 @@ typedef struct noeud {
     struct noeud *droite;
 } noeud;
 
-
 void occurence(FILE *fic, int tab[256]);
 
 
