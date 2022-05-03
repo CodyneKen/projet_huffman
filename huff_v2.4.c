@@ -16,6 +16,10 @@ int main(int argc, char **argv) {
 
     FILE *f;
     int *occ = calloc(N_CHAR, sizeof(int));
+    if (!occ) {
+        printf("Not enough memory, failed to calloc\n");
+        exit(EXIT_FAILURE);
+    }
     int i;
 
     if (argc < 2) {
@@ -31,4 +35,8 @@ int main(int argc, char **argv) {
         printf("%d", occ[i]);
     printf("\n");
 
+    for (i = 0; i < N_CHAR. i++)
+    {
+
+    }
 }
