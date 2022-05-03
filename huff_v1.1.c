@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv) {
+int main (int argc, char** argv){
+        
+  FILE* f;
+  char c = '\0';
+>>>>>>> coco
 
     FILE *f;
     char str[15 * 2 + 1];
@@ -10,10 +14,8 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 /* on essaye d'ouvrir le fichier, erreur sinon :*/
-    if ((f = fopen(argv[1], "r"))) {
-        fread(str, 15, 2, f);
-        str[15 * 2] = '\0';
-        printf(str);
-        printf("\n");
-    }
+  if ((f = fopen(argv[1], "r"))){
+      while ( (c = fgetc(f)) != EOF )
+        printf("%c", c);
+  }
 }
