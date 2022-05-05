@@ -7,14 +7,14 @@
 #define BIT_ENC 256
 
 typedef struct noeud {
-    char c;
-    int occ;
-    int enc[BIT_ENC];
-    int nb_bit;
-    struct noeud *gauche;
-    struct noeud *droite;
+    char c; /* caractère initial */
+    int occ; /* nbre d'occurrence du caractère */
+    int enc[BIT_ENC]; /* codage dans l'arbre */
+    int nb_bit; /* nbre bit sur lequel est codé le caractère */
+    struct noeud *gauche; /* fils gauche */
+    struct noeud *droite; /* fils droit */
 } noeud;
 
-void occurence(FILE *fic, int tab[256]);
+void occurence(FILE *fic, int tab[N_CHAR]);
 
 
