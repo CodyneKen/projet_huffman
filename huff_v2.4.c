@@ -31,8 +31,10 @@ int main(int argc, char **argv) {
     printf("occurences :");
     noeud *arbre_huffman = calloc(N_CHAR, sizeof(noeud));
     for (i = 0; i < N_CHAR; i++) {
-        arbre_huffman[i].c = i;
-        arbre_huffman[i].occ = occ[i];
+        if (occ[i] != 0) {
+            arbre_huffman[i].c = i;
+            arbre_huffman[i].occ = occ[i];
+        }
         printf("char n°%d :", i);
         printf("%c ->", arbre_huffman[i].c);
         printf("%d \n", arbre_huffman[i].occ);

@@ -14,10 +14,11 @@ void occurence(FILE *fic, int tab[N_CHAR]){
 }
 
 noeud creer_noeud(int numchar, int occchar){
-        arbre_huffman[i].c = i;
-        arbre_huffman[i].occ = occ[i];
+    noeud tmp_noeud = calloc(1, sizeof(noeud));
+    tmp_noeud.c = numchar;
+    tmp_noeud.occ = occchar;
+    return tmp_noeud;
 }
-
 
 int main (int argc, char** argv){
         
