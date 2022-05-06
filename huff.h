@@ -11,9 +11,11 @@ typedef struct noeud {
     int occ; /* nbre d'occurrence du caractère */
     int enc[BIT_ENC]; /* codage dans l'arbre */
     int nb_bit; /* nbre bit sur lequel est codé le caractère */
-    struct noeud *gauche; /* fils gauche */
-    struct noeud *droite; /* fils droit */
-} noeud;
+    struct noeud *gauche; /* fils noeud gauche */
+    struct noeud *droite; /* fils noeud droit */
+} struct_noeud;
+
+typedef struct_noeud noeud;
 
 void occurence(FILE *fic, int tab[N_CHAR]);
 
