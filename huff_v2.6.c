@@ -13,15 +13,6 @@ void occurence(FILE *fic, int tab[N_CHAR]){
   printf("\n");
 }
 
-/*
-   noeud* creer_feuille(int numchar, int occchar){
-   noeud tmp_noeud = calloc(1, sizeof(noeud));
-   tmp_noeud.c = numchar;
-   tmp_noeud.occ = occchar;
-   return tmp_noeud;
-   }
-   */
-
 noeud* creer_feuille(int* tab, int index){
   /* tab est le tableau des occurrences, index est l'index du char, donc sa valeur ascii/int*/
   noeud *tmp_noeud = calloc(1, sizeof(noeud));
@@ -33,6 +24,19 @@ noeud* creer_feuille(int* tab, int index){
   return tmp_noeud;
 
 }
+
+void display_huffman(noeud** arbre){
+  int i;
+  for (i=0; i<N_CHAR; i++){
+    if (arbre[i] && arbre[i]->occ){
+      printf("char n°%d :", i);
+      printf("%c ->", arbre[i]->c);
+      printf("%d \n", arbre[i]->occ);
+    }
+  }
+  printf("\n");
+}
+
 /* pas fonctionnel pour l'instant : */
 void detruire_arbre_huff(noeud *tab[N_CHAR]){
   int i;
@@ -44,28 +48,47 @@ void detruire_arbre_huff(noeud *tab[N_CHAR]){
 }
 
 void find2Lowest(int *tab, int nbElement, int *low1, int *low2){
+  /* indices des 2 premiers elmt non vides de tab */
+  int i = 0; 
   if (tab){
-    if (nbElement == 1){
-      /*ne marche pas car passer un tableau a une fonction le transforme en pointeur simple, l'information est perdue:*/
-      /* size_t nbElement = sizeof(occ)/sizeof(occ[0]); */
-      fprintf(stderr, "erreur, tab de taille 1 dans find2Lowest, on donne 2 fois le même en return\n");
-      *low1=tab[0];
-      *low2=tab[0];
+
+    if (nbElement == 0){
+      fprintf(stderr, "erreur, tab de taille 0 dans find2Lowest, low1 et low2 non changés \n");
       return;
     }
-    /* met le plus petit elmt des 2 premiers dans i1, et 2e plus petit dans i2 */
-    int i1 = (tab[0]<tab[1]?tab[0]:tab[1]);
-    int i2 = (tab[0]<tab[1]?tab[1]:tab[0]);
-    int i;
-    for (i=2; i<nbElement; i++){
-      if(tab[i]<i1 && tab[i]<i2){
+
+    if (nbElement == 1){
+      while (!tab[i])
+        i++;
+
+      fprintf(stderr, "erreur, tab de taille 1 dans find2Lowest, on donne 2 fois le même en return\n");
+      *low1=tab[i];
+      *low2=tab[i];
+      return;
+    }
+
+    /*si taille != 0 ou != 1, le tableau est normal, on le traite :*/
+
+    /* i1, i2, les indices des 2 plus petits elements */
+    int i1, i2;
+    i1 = i2 = 0;
+    /* e1, e2, les 2 plus petits elements */
+    int e1, e2;
+    e1 = e2 = INT_MAX;
+
+    for (i=0; i<N_CHAR; i++){
+      if(tab[i]!=0 && tab[i]<e1){
+        e2=e1;
         i2=i1;
-        i1=tab[i];
+        e1=tab[i];
+        i1=i;
       }
-      else if (tab[i]<i2){
-        i2=tab[i];
+      else if (tab[i]!=0 && tab[i]<e2){
+        e2=tab[i];
+        i2=i;
       }
     }
+    /* IMPORTANT LA FONCTION RETOURNE LES >>INDICES<< DES 2 PLUS PETITS, PLUS FLEXIBLE */
     *low1 = i1;
     *low2 = i2;
     return;
@@ -84,6 +107,7 @@ int main (int argc, char** argv){
   if (!occ)
     fprintf(stderr, "occ erreur a la ligne %d\n", __LINE__);
   int i;
+  int nbElement = 0;
 
   if (argc<2){
     printf("Merci de fournir un nom de fichier\n");
@@ -100,22 +124,24 @@ int main (int argc, char** argv){
     fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
 
   for (i=0; i<N_CHAR; i++){
-    /* ne choisir que les char avec occ[i]>0 créé un segfault avec le char 123 "{" on ne sait pas pourquoi pour le moment */
-    if (occ[i]>0){
+    if (occ[i]){
+      nbElement++;
       arbre_huffman[i]=creer_feuille(occ, i);
-      printf("char n°%d :", i);
-      printf("%c ->", arbre_huffman[i]->c);
-      printf("%d \n", arbre_huffman[i]->occ);
     }
   }
-  printf("\n");
+
+  display_huffman(arbre_huffman);
 
   int *low1=malloc(sizeof(int)), *low2=malloc(sizeof(int));
   if (!low1 || !low2)
     fprintf(stderr, "pb allocation mem pour low1 et/ou low2 a la ligne %d\n", __LINE__);
-  /* size_t arrsize = sizeof(occ)/sizeof(occ[0]); */
-  find2Lowest(occ, N_CHAR, low1, low2);
+
+  find2Lowest(occ, nbElement, low1, low2);
   printf("2 plus petits : %d %d\n", *low1, *low2);
+
+  noeud *plusPetits = calloc(1, sizeof(noeud));
+  plusPetits->occ = arbre_huffman[*low1]->occ + arbre_huffman[*low2]->occ;
+  printf("occurences 2 plus petit : %d\n", plusPetits->occ );
 
 /*   if (arbre_huffman) */
 /*     detruire_arbre_huff(&arbre_huffman); */

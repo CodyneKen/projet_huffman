@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 /*max number of chars able to be encoded by the algo*/
 #define N_CHAR 256
@@ -19,7 +20,9 @@ void occurence(FILE *fic, int tab[256]);
 
 noeud* creer_feuille(int* tab, int index);
 
+void display_huffman(noeud** arbre);
+
 void detruire_arbre_huff(noeud *tab[N_CHAR]);
 
-void findLowest(int *tableau, int *low1, int *low2);
+void find2Lowest(int *tableau,int nbElement, int *low1, int *low2);
 
