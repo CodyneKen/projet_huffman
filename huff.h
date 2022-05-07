@@ -17,4 +17,9 @@ typedef struct noeud {
 
 void occurence(FILE *fic, int tab[256]);
 
+noeud* creer_feuille(int* tab, int index);
+
+void detruire_arbre_huff(noeud *tab[N_CHAR]);
+
+void findLowest(int *tableau, int *low1, int *low2);
 
