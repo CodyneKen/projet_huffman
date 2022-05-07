@@ -2,10 +2,10 @@ Historique des versions:
 
 <!> v0.x correspond aux reponses de la 1re partie de l'énoncé,v1.x à la 2e, etc
 
-huff_v0.1.c : A FAIRE AVEC FREAD q1, affiche les 10 premières lignes du fichier passé en argument
+huff_v1.1.c : A FAIRE AVEC FREAD q1, affiche les 10 premières lignes du fichier passé en argument
 
-huff_v0.2.c : Affiche l'intégralité du fichier passé en argument 
+huff_v1.2.c : Affiche l'intégralité du fichier passé en argument 
 
-huff_v0.3.c : Ajout de la fonction occurrence qui compte le nombre d'occurrence de chaque char du fichier
+huff_v1.3.c : Ajout de la fonction occurrence qui compte le nombre d'occurrence de chaque char du fichier
 
-huff_v1.1.c : 
+huff_v2.4.c : 
