@@ -94,17 +94,18 @@ int main (int argc, char** argv){
     occurence(f, occ);
   }
   printf("occurences :");
-  noeud *arbre_huffman = calloc(N_CHAR, sizeof(noeud*));
+  noeud ** arbre_huffman = NULL;
+  arbre_huffman = calloc(N_CHAR, sizeof(noeud*));
   if (!arbre_huffman)
     fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
 
   for (i=0; i<N_CHAR; i++){
     /* ne choisir que les char avec occ[i]>0 créé un segfault avec le char 123 "{" on ne sait pas pourquoi pour le moment */
-    if (occ[i]>0 && i!=123){
-      arbre_huffman[i]=*creer_feuille(occ, i);
+    if (occ[i]>0){
+      arbre_huffman[i]=creer_feuille(occ, i);
       printf("char n°%d :", i);
-      printf("%c ->", arbre_huffman[i].c);
-      printf("%d \n", arbre_huffman[i].occ);
+      printf("%c ->", arbre_huffman[i]->c);
+      printf("%d \n", arbre_huffman[i]->occ);
     }
   }
   printf("\n");
