@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <locale.h>
 
 /*max number of chars able to be encoded by the algo*/
 #define N_CHAR 128
@@ -26,6 +26,16 @@ void creer_noeud(noeud *arbre[N_CHAR], int taille);
 void creer_code(noeud *element);
 
 void creer_code_aux(noeud *element, int code, int profondeur);
+
+/* READ/WRITE */
+
+void write_huffman(FILE*  f, noeud** arbre);
+
+void write_noeud(FILE*  f, noeud* noeud);
+
+void write_code(FILE*  f, noeud *element, int code, int profondeur);
+
+void write_binary(FILE*  f, int nbr_bits, int codage);
 
 /* AFFICHAGE */
 void display_huffman(noeud** arbre);
