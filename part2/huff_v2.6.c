@@ -47,10 +47,10 @@ void detruire_arbre_huff(noeud *tab[N_CHAR]){
   return;
 }
 
-void find2Lowest(int *tab, int nbElement, int *low1, int *low2){
+void find2Lowest(noeud** arbre, int nbElement, int *low1, int *low2){
   /* indices des 2 premiers elmt non vides de tab */
   int i = 0; 
-  if (tab){
+  if (arbre){
 
     if (nbElement == 0){
       fprintf(stderr, "erreur, tab de taille 0 dans find2Lowest, low1 et low2 non changés \n");
@@ -58,12 +58,13 @@ void find2Lowest(int *tab, int nbElement, int *low1, int *low2){
     }
 
     if (nbElement == 1){
-      while (!tab[i])
+      /* tant que arbre[i] pas défini (donc pas d'occurence) */
+      while (!arbre[i])
         i++;
 
       fprintf(stderr, "erreur, tab de taille 1 dans find2Lowest, on donne 2 fois le même en return\n");
-      *low1=tab[i];
-      *low2=tab[i];
+      *low1=i;
+      *low2=i;
       return;
     }
 
@@ -77,14 +78,14 @@ void find2Lowest(int *tab, int nbElement, int *low1, int *low2){
     e1 = e2 = INT_MAX;
 
     for (i=0; i<N_CHAR; i++){
-      if(tab[i]!=0 && tab[i]<e1){
+      if(arbre[i] && arbre[i]->occ<e1){
         e2=e1;
         i2=i1;
-        e1=tab[i];
+        e1=arbre[i]->occ;
         i1=i;
       }
-      else if (tab[i]!=0 && tab[i]<e2){
-        e2=tab[i];
+      else if (arbre[i] && arbre[i]->occ<e2){
+        e2=arbre[i]->occ;
         i2=i;
       }
     }
@@ -136,7 +137,8 @@ int main (int argc, char** argv){
   if (!low1 || !low2)
     fprintf(stderr, "pb allocation mem pour low1 et/ou low2 a la ligne %d\n", __LINE__);
 
-  find2Lowest(occ, nbElement, low1, low2);
+  /* on fait passer l'arbre_huffman a find2Lowest, car les occurrences sont stockées dedans, ca évite d'avoir a faire passer le tableau des occurrences dans toutes les futures fonctions*/
+  find2Lowest(arbre_huffman, nbElement, low1, low2);
   printf("2 plus petits : %d %d\n", *low1, *low2);
 
   noeud *plusPetits = calloc(1, sizeof(noeud));
