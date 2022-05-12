@@ -55,11 +55,9 @@ void creer_code_aux(noeud *element, int code, int profondeur) {
     if (est_feuille(element)) {
         element->enc = code;
         element->nb_bit = profondeur;
-        /*affichage_code(profondeur, code);
-        printf("\n");*/
     } else {
-        creer_code_aux(element->gauche, code, profondeur + 1);
-        creer_code_aux(element->droit, code + 1, profondeur + 1);
+        creer_code_aux(element->gauche, code << 1, profondeur + 1);
+        creer_code_aux(element->droit, (code << 1) + 1, profondeur + 1);
     }
 }
 
@@ -67,19 +65,28 @@ void affichage_code(int nbr_bits, int codage) {
     int i = nbr_bits;
     int n = codage;
     while (i) {
-        printf("%d", n % 2);
-        n = n / 2;
+        printf("%d", n & 1);
+        n = n >> 1;
         i--;
     }
+}
+
+int compterNoeud(noeud **arbre) {
+    int i = 0, compt = 0;
+    for (i = 0; i < N_CHAR; i++)
+        if (arbre[i])
+            compt++;
+    return compt;
 }
 
 /* READ/WRITE */
 void write_header(char *originalName, FILE *f, noeud **arbre) {
     fprintf(f, "FILE:%s\n", originalName);
+    fprintf(f, "%d\n", compterNoeud(arbre));
     write_huffman(f, arbre);
-    fprintf(f, "CONTENT\n");
 }
 
+/* Écrit le TABLEAU dans le fichier, ne marche pas avec des arbres ⇒ pas d'appel récursif */
 void write_huffman(FILE *f, noeud **arbre) {
     int i;
     for (i = 0; i < N_CHAR; i++)
@@ -89,27 +96,30 @@ void write_huffman(FILE *f, noeud **arbre) {
 
 void write_noeud(FILE *f, noeud *noeud) {
     /* printf("char n°%d :", noeud->c); */
-    fprintf(f, "%c->", noeud->c);
-    fprintf(f, "%d\n", noeud->occ);
+    fwrite(&noeud, sizeof(struct noeud), 1, f);
 }
 
-void write_code(FILE *f, noeud **element, int code, int profondeur) {
-    if (est_feuille(*element)) {
-        (*element)->enc = code;
-        (*element)->nb_bit = profondeur;
-        write_binary(f, profondeur, code);
-        fprintf(f, "\n");
-    } else {
-        write_code(f, &(*element)->gauche, (code << 1), profondeur + 1);
-        write_code(f, &(*element)->droit, (code << 1) + 1, profondeur + 1);
+void write_code(FILE *f, noeud *element, int code, int profondeur, int *occ) {
+    int i;
+    for (i = 0; i < N_CHAR; i++) {
+        if (occ[i])
+            write_binary(f, element,element->nb_bit, element->enc);
+    }
+    if (element) {
+        if (est_feuille(element)) {
+            element->enc = code;
+            element->nb_bit = profondeur;
+            write_binary(f, profondeur, code);
+            fprintf(f, "\n");
+        }
     }
 }
 
-void write_binary(FILE *f, int nbr_bits, int codage) {
+void get_binary(FILE *f, int nbr_bits, int codage) {
     int i = nbr_bits;
     int n = codage;
     while (i) {
-        fprintf(f, "%d", n % 2);
+        fprintf(f, "%d", n & 1);
         n = n >> 1;
         i--;
     }

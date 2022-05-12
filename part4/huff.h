@@ -8,6 +8,8 @@
 /*max number of bits for encoding*/
 #define BIT_ENC 256
 
+/** Commandes utiles :  hexdump -C <name_file> */
+
 typedef struct noeud {
     int c;
     int occ;
@@ -33,7 +35,7 @@ void write_huffman(FILE *f, noeud **arbre);
 
 void write_noeud(FILE *f, noeud *noeud);
 
-void write_code(FILE *f, noeud **element, int code, int profondeur);
+void write_code(FILE *f, noeud *element, int code, int profondeur, int *occ);
 
 void write_binary(FILE *f, int nbr_bits, int codage);
 
