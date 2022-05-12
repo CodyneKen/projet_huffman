@@ -37,7 +37,7 @@ void write_noeud(FILE *f, noeud *noeud);
 
 void write_code(FILE *f, noeud *element, int code, int profondeur, int *occ);
 
-void write_binary(FILE *f, int nbr_bits, int codage);
+void write_binary(FILE *f, noeud *element, int nbr_bits, int codage);
 
 /* AFFICHAGE */
 void display_huffman(noeud **arbre);

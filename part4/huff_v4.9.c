@@ -103,7 +103,7 @@ void write_code(FILE *f, noeud *element, int code, int profondeur, int *occ) {
     int i;
     for (i = 0; i < N_CHAR; i++) {
         if (occ[i])
-            write_binary(f, element,element->nb_bit, element->enc);
+            write_binary(f, element, element->nb_bit, element->enc);
     }
     if (element) {
         if (est_feuille(element)) {
