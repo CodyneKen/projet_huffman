@@ -10,7 +10,7 @@ void occurence(FILE *fic, int tab[N_CHAR]){
       tab[c]++;
     }
     /* else */
-      /* printf("not a char supported :char n°%d -> %c\n", c, c); */
+    /* printf("not a char supported :char n°%d -> %c\n", c, c); */
   }
 }
 
@@ -57,12 +57,10 @@ void creer_code_aux(noeud *element, int code, int profondeur){
   if (est_feuille(element)){
     element->enc = code;
     element->nb_bit = profondeur;
-    affichage_code(profondeur, code);
-    printf("\n");
   }
   else{
-    creer_code_aux(element->gauche, code, profondeur+1);
-    creer_code_aux(element->droit, code+1, profondeur+1);
+    creer_code_aux(element->gauche, code << 1, profondeur+1);
+    creer_code_aux(element->droit, (code << 1)+1, profondeur+1);
   }
 }
 
@@ -70,51 +68,61 @@ void affichage_code(int nbr_bits, int codage){
   int i = nbr_bits;
   int n = codage;
   while(i){
-    printf("%d", n%2);
-    n = n/2;
+    printf("%d", n&1 );
+    n = n >> 1;
     i--;
   }
+}
+
+int compterNoeud(noeud **arbre){
+  int i=0;
+  int compt=0;
+  for (i=0; i<N_CHAR; i++)
+    if (arbre[i])
+      compt++;
+  return compt;
 }
 /* READ/WRITE */
 void write_header(char* originalName, FILE*  f, noeud** arbre){
   fprintf(f, "FILE:%s\n", originalName);
+  fprintf(f, "%d\n", compterNoeud(arbre) );
   write_huffman(f, arbre);
-  fprintf(f, "CONTENT\n");
 }
 
+/*ecrit le TABLEAU dans le fichier, ne marche pas avec des arbres( pas d'appel récursifs)*/
 void write_huffman(FILE*  f, noeud** arbre){
   int i;
   for (i=0; i<N_CHAR; i++)
     if (arbre[i] && arbre[i]->occ)
       write_noeud(f, arbre[i]);
-
 }
 
 void write_noeud(FILE*  f, noeud* noeud){
-      /* printf("char n°%d :", noeud->c); */
-      fprintf(f, "%c->", noeud->c);
-      fprintf(f, "%d\n", noeud->occ); 
+  /* printf("char n°%d :", noeud->c); */
+  fwrite(&noeud, sizeof(struct noeud), 1, f);
 }
-  
-void write_code(FILE*  f, noeud **element, int code, int profondeur){
-  if (est_feuille(element)){
-    element->enc = code;
-    element->nb_bit = profondeur;
-    write_binary(f, profondeur, code);
-    fprintf(f, "\n");
-  }
-  else{
-    write_code(f,element->gauche, code, profondeur+1);
-    write_code(f,element->droit, code+1, profondeur+1);
+
+void write_code(FILE*  f, noeud *element, int code, int profondeur){
+  for (i=0; i<N_CHAR; i++){
+    if (occ[i])
+      write_binary(fcomp, *alphabet, alphabet[i]->nb_bit, alphabet[i]->enc);
+
+  if (element){
+    if (est_feuille(element)){
+      element->enc = code;
+      element->nb_bit = profondeur;
+      write_binary(f, profondeur, code);
+      fprintf(f, "\n");
+    }
   }
 }
 
-void write_binary(FILE*  f, int nbr_bits, int codage){
+void get_binary(FILE*  f, int nbr_bits, int codage){
   int i = nbr_bits;
   int n = codage;
   while(i){
-    fprintf(f, "%d", n%2);
-    n = n/2;
+    fprintf(f, "%d", n&1 );
+    n = n >> 1;
     i--;
   }
 }
@@ -211,6 +219,7 @@ int main (int argc, char** argv){
   }
   /* on essaye d'ouvrir le fichier, erreur sinon :*/
   f = fopen(argv[1], "r");
+  /* f = fopen(argv[1], "rb"); */
   if (!f){
     fprintf(stderr,"fichier impossible à ouvrir\n");
     exit(EXIT_FAILURE);
@@ -235,33 +244,34 @@ int main (int argc, char** argv){
   }
 
   while(taille > 1){
-        creer_noeud(arbre_huffman, taille);
-        taille--;
+    creer_noeud(arbre_huffman, taille);
+    taille--;
   }
-  
+
   i=0;
   while(!arbre_huffman[i])
     i++;
 
-/* on sait que i est non-vide, pour tester: */
-  char* compname = strncat(argv[1], "comp", 4);
-  FILE *fcomp = fopen(compname, "w");
+  /* on sait que i est non-vide, pour tester: */
+  char *compname = (char *) malloc( strlen(argv[1]) );
+  strcpy(compname, argv[1]);
+  compname = strcat(compname, "comp");
+  FILE *fcomp = fopen(compname, "wb");
   if (!fcomp){
     fprintf(stderr,"fichier impossible à ouvrir\n");
     exit(EXIT_FAILURE);
   }
+
+  
   write_header(argv[1], fcomp, alphabet);
   creer_code(arbre_huffman[i]);
-  for (i=0; i<N_CHAR; i++){
-    if (occ[i])
-      write_code(fcomp,alphabet, alphabet[i]->nb_bit, alphabet[i]->enc);
 
+/*     if (arbre_huffman) */
+/*       detruire_arbre_huff(arbre_huffman); */
+/*     if (occ) */
+/*       free(occ); */
 
-  if (arbre_huffman)
-    detruire_arbre_huff(arbre_huffman);
-  if (occ)
-    free(occ);
-
+  }
 }
 
 

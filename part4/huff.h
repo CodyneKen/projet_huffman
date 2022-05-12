@@ -8,6 +8,8 @@
 /*max number of bits for encoding*/
 #define BIT_ENC 256
 
+/* commandes utliles : hexdump -C test */
+
 typedef struct noeud {
     int c;
     int occ;
