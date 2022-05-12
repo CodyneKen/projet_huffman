@@ -19,7 +19,7 @@ typedef struct noeud {
 
 
 /* CREATION */
-noeud* creer_feuille(int* tab, int index);
+noeud *creer_feuille(int *tab, int index);
 
 void creer_noeud(noeud *arbre[N_CHAR], int taille);
 
@@ -28,23 +28,23 @@ void creer_code(noeud *element);
 void creer_code_aux(noeud *element, int code, int profondeur);
 
 /* AFFICHAGE */
-void display_huffman(noeud** arbre);
+void display_huffman(noeud **arbre);
 
-void display_noeud(noeud* noeud);
+void display_noeud(noeud *noeud);
 
 void affichage_code(int nbr_bits, int codage);
 
 /* NETTOYAGE */
 void detruire_arbre_huff(noeud *tab[N_CHAR]);
 
-void detruire_noeud(noeud* noeud);
+void detruire_noeud(noeud *noeud);
 
-void detruire_feuille(noeud* noeud);
+void detruire_feuille(noeud *noeud);
 
 /* INFORMATION */
 void occurence(FILE *fic, int tab[256]);
 
-int est_feuille(noeud* noeud);
+int est_feuille(noeud *noeud);
 
-void find2Lowest(noeud** arbre,int nbElement, int *low1, int *low2);
+void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2);
 
