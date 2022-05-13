@@ -11,7 +11,7 @@
 /** Commandes utiles :  hexdump -C <name_file> */
 
 typedef struct noeud {
-    int c;
+    unsigned char c;
     int occ;
     int enc;
     int nb_bit;
