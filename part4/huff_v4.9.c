@@ -102,30 +102,82 @@ void write_noeud(FILE*  f, noeud* noeud){
   fwrite(&noeud, sizeof(struct noeud), 1, f);
 }
 
-void write_code(FILE*  f, noeud *element, int code, int profondeur){
-  for (i=0; i<N_CHAR; i++){
-    if (occ[i])
-      write_binary(fcomp, *alphabet, alphabet[i]->nb_bit, alphabet[i]->enc);
+void write_code(FILE*  in, FILE* out, noeud** alphabet){
+  int c = 0;
+  /* la strategie ici est d'ecrire par paquets de 8bits (1o =1char, minimum writeable), on met donc l'encodeage d'un char dans le BUFFER, puis s'il depasse 8bits, on ecrits 8bits, les enleve du buffer, etc... */
+  buffer* BUFFER = malloc(sizeof(buffer)); 
+  init_buffer(BUFFER);
 
-  if (element){
-    if (est_feuille(element)){
-      element->enc = code;
-      element->nb_bit = profondeur;
-      write_binary(f, profondeur, code);
-      fprintf(f, "\n");
-    }
+
+  /* remet la tete de lecture du fichier à compresser au début du fichier */
+  rewind(in);
+  /* normalement out est positionné juste après l'écriture du header, idéal */
+  while ( (c = fgetc(in)) != EOF ){
+    /* si buffer a plus de 8 bits, on les écrits, jusqua buffsize<8 (supprime les 8bits a gauche du buffer) */
+    while(BUFFER->size > 8)
+      write_8bits(BUFFER, out);
+    /* on ecrit l'encodage du char c dans le buffer (a droite) */
+    append_bits(c, BUFFER, alphabet);
   }
 }
 
-void get_binary(FILE*  f, int nbr_bits, int codage){
-  int i = nbr_bits;
-  int n = codage;
-  while(i){
-    fprintf(f, "%d", n&1 );
-    n = n >> 1;
-    i--;
+void init_buffer(buffer* BUFFER){
+  BUFFER->bits = 0;
+  BUFFER->size = 0;
+}
+
+int get_enc(int c, noeud** alphabet){
+  return alphabet[c]->enc;
+}
+
+int get_nb(int c, noeud** alphabet){
+  return alphabet[c]->nb_bit;
+}
+
+/*enqueue_bit : rajoute 1 bit, "à droite" du buffer si n == 0, 0, sinon 1*/
+void enq_bit(int n, buffer* b){
+  /* on créé 1 espace a droite du buffer */
+  b->bits = b->bits << 1;
+  b->size++;
+/*operateur ternaire <=> si n != 0, on OR le buffer avec la valeur 1, donc change 1er bit, le <<0 shift le 1, et permet de manipuler des bits individuellement sans avoir a écrire |= 2, |=4, ou toutes les puissances de 2 pour manipuler les bits individuellements*/
+ if (n)
+   /* si le bit a ajouté est non-null */
+   b->bits |= (1 << 0);
+}
+
+void append_bits(char c,buffer* b, noeud** alphabet){
+  int i;
+  /* bit sera soit 0 soit 1*/
+  int bit;
+  int length = get_nb(c, alphabet);
+  int enc = get_enc(c, alphabet);
+  for (i=0; i<length; i++){
+    /* recup le ieme bit de enc */
+    bit = enc & (1 << i) ;
+    /* l'ajoute au buffer */
+    enq_bit(bit, b);
   }
 }
+
+/* enleve 8 bits a gauche du buffer (les plus anciens)*/
+void write_8bits(buffer* b, FILE* out){
+  int i = 0;
+  int buffsize = b->size;
+  char write_buff = 0;
+  /* prendre le buffsize-ieme char, mettre dans write_buff, repeter jusqu'a size-7 ieme */
+  /* si on inverse 7 et 0 dans l'entete 'for' ici, cela inverse l'ordre d'ecriture des bits au fichier */
+  for (i=7; i>=0; i-- ){
+        if (b->bits & (1<<(buffsize-i)))
+          write_buff |= 1 << (7-i);
+  }
+  /* on ecrit 1 byte, 1 fois dans out */
+  fwrite(&write_buff, 1, 1, out);
+  /* une fois que l'on as recup les 8bits, on reduit la taille, pas besoin de remettre les bits a 0, marche comme une pile */
+  b->size -= 8;
+}
+
+
+/* DESTRUCTION*/
 
 void detruire_arbre_huff(noeud *tab[N_CHAR]){
   int i;
@@ -206,7 +258,7 @@ void find2Lowest(noeud** arbre, int nbElement, int *low1, int *low2){
 
 int main (int argc, char** argv){
 
-  FILE* f;
+  FILE* fin;
   int *occ = calloc(N_CHAR, sizeof(int));
   if (!occ)
     fprintf(stderr, "occ erreur a la ligne %d\n", __LINE__);
@@ -218,13 +270,13 @@ int main (int argc, char** argv){
     exit(EXIT_FAILURE);
   }
   /* on essaye d'ouvrir le fichier, erreur sinon :*/
-  f = fopen(argv[1], "r");
+  fin = fopen(argv[1], "r");
   /* f = fopen(argv[1], "rb"); */
-  if (!f){
+  if (!fin){
     fprintf(stderr,"fichier impossible à ouvrir\n");
     exit(EXIT_FAILURE);
   }
-  occurence(f, occ);
+  occurence(fin, occ);
   noeud ** arbre_huffman = NULL;
   arbre_huffman = calloc(N_CHAR, sizeof(noeud*));
   noeud ** alphabet = NULL;
@@ -253,7 +305,7 @@ int main (int argc, char** argv){
     i++;
 
   /* on sait que i est non-vide, pour tester: */
-  char *compname = (char *) malloc( strlen(argv[1]) );
+  char *compname = (char *) malloc(strlen(argv[1])+1 );
   strcpy(compname, argv[1]);
   compname = strcat(compname, "comp");
   FILE *fcomp = fopen(compname, "wb");
@@ -262,16 +314,15 @@ int main (int argc, char** argv){
     exit(EXIT_FAILURE);
   }
 
-  
-  write_header(argv[1], fcomp, alphabet);
   creer_code(arbre_huffman[i]);
+  write_header(argv[1], fcomp, alphabet);
+  write_code(fin, fcomp, alphabet);
 
-/*     if (arbre_huffman) */
-/*       detruire_arbre_huff(arbre_huffman); */
-/*     if (occ) */
-/*       free(occ); */
+    /*     if (arbre_huffman) */
+    /*       detruire_arbre_huff(arbre_huffman); */
+    /*     if (occ) */
+    /*       free(occ); */
 
-  }
 }
 
 

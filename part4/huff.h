@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <stdint.h>
 
 /*max number of chars able to be encoded by the algo*/
 #define N_CHAR 128
@@ -9,6 +10,8 @@
 #define BIT_ENC 256
 
 /* commandes utliles : hexdump -C test */
+
+/* STRUCTURES */
 
 typedef struct noeud {
     int c;
@@ -20,6 +23,15 @@ typedef struct noeud {
 } noeud;
 
 
+/* struct buffer utilisée pour manipuler et écrire les encodages huffman sur le fichier de sortie */
+typedef struct buffer{
+  /* la taille max d'un encoding de huffman est 16bits, donc en ayant 32 bits, on se donne de la marge de secours */
+  /* unsigned int 32bits, car signed peut provoquer erreurs sur bitwise operators */ 
+  uint32_t bits;
+  int size;
+} buffer;
+
+
 /* CREATION */
 noeud* creer_feuille(int* tab, int index);
 
@@ -29,15 +41,32 @@ void creer_code(noeud *element);
 
 void creer_code_aux(noeud *element, int code, int profondeur);
 
+
 /* READ/WRITE */
 
 void write_huffman(FILE*  f, noeud** arbre);
 
 void write_noeud(FILE*  f, noeud* noeud);
 
-void write_code(FILE*  f, noeud *element, int code, int profondeur);
+
+void write_code(FILE*  in, FILE* out, noeud** alphabet);
 
 void write_binary(FILE*  f, int nbr_bits, int codage);
+
+/* RECUP / BIN_MANIPULATION*/
+
+void init_buffer(buffer* BUFFER);
+
+int get_enc(int c,noeud** alphabet);
+
+int get_nb(int c,noeud** alphabet);
+
+void enq_bit(int n, buffer* b);
+
+void append_bits(char c,buffer* b, noeud** alphabet);
+
+void write_8bits(buffer* BUFFER, FILE* out);
+
 
 /* AFFICHAGE */
 void display_huffman(noeud** arbre);
@@ -54,7 +83,7 @@ void detruire_noeud(noeud* noeud);
 void detruire_feuille(noeud* noeud);
 
 /* INFORMATION */
-void occurence(FILE *fic, int tab[256]);
+void occurence(FILE *fic, int tab[N_CHAR]);
 
 int est_feuille(noeud* noeud);
 
