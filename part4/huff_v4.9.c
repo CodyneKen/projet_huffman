@@ -88,17 +88,18 @@ int compterNoeud(noeud **arbre){
 
 void read_header(FILE* f, char* originalName, noeud** arbre){
   int nb_noeud;
-  fscanf(f, "FILE:<%s>\n", &originalName);
+  fscanf(f, "FILE:<%s>\n", originalName);
   fscanf(f, "%d\n", &nb_noeud);
-  read_huffman(f, arbre);
+  read_huffman(f, arbre, nb_noeud);
 }
 
-void read_huffman(FILE* f, noeud** arbre, int nb_noeud){
-  int i, j;
-  noeud tmp;
-    for (j=0; j<nb_noeud; j++){
-        read_noeud(FILE* f, &tmp);
-        arbre[tmp.c]= tmp;
+void read_huffman(FILE* f, noeud** alphabet, int nb_noeud){
+  int i;
+  noeud* tmp;
+    for (i=0; i<nb_noeud; i++){
+        tmp = malloc(sizeof(noeud));
+        read_noeud(f, tmp);
+        alphabet[tmp->c]= tmp;
     }
 } 
 
@@ -106,7 +107,106 @@ void read_noeud(FILE* f, noeud* noeud){
         fread(&noeud, sizeof(noeud), 1, f);
 }
 
-void read_code
+void read_code(FILE* in, FILE* out, noeud** alphabet){
+  /* on créé l'arbre a partir de l'alphabet */
+  int i, j;
+  int taille = 0;
+  /* prev_pos utilisé avec ftell pour enregistrer la position dans le fichier */
+  /* utile pour voir si on est arrivé a un tag FILE:"nom_fichier" */
+  char c;
+  int bit;
+  noeud ** arbre_huffman = NULL;
+  arbre_huffman = calloc(N_CHAR, sizeof(noeud*));
+  if (!arbre_huffman)
+    fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
+  noeud* ptr_noeud = malloc(sizeof(noeud*));
+
+
+  /* création d'une copie de alphabet, pour le transformer en arbre d'huffman*/
+  for (i=0; i<N_CHAR; i++){
+    if (alphabet[i]){
+      taille++;
+
+      arbre_huffman[i]=calloc(1, sizeof(noeud));
+      if (!arbre_huffman[i])
+        fprintf(stderr, "erreur alloc arbre_huffman noeud a la ligne %d\n", __LINE__);
+
+      arbre_huffman[i]->c = alphabet[i]->c;
+      arbre_huffman[i]->occ = alphabet[i]->occ;
+ 
+    }
+  }
+ /* création de l'arbre */ 
+  while(taille > 1){
+    creer_noeud(arbre_huffman, taille);
+    taille--;
+  }
+/* trouver la racine de l'arbre */
+  while(!arbre_huffman[i])
+    i++;
+
+  ptr_noeud = arbre_huffman[i];
+  while ((c = fgetc(in)) != EOF ){
+    if (c == 'F'){
+      ungetc(c, in);
+      if (test_FILEtag(in))
+        /* arrivé a un tag FILE, donc début du fichier suivant */
+        break;
+      c = fgetc(in);
+    }
+
+    for (j=7; j>=0; j--){
+      bit = c | (1<<j);
+      if (parcours_arbre(bit, ptr_noeud)){
+        fputc(ptr_noeud->c, out);
+        ptr_noeud = arbre_huffman[i];
+      }
+    } 
+  }
+}
+
+int test_FILEtag(FILE* f){
+  /* ftell donne la position actuelle dans le fichier, après le check, réussite ou pas, on reviens la ou on etais, juste avant le 'F' */
+  long int prev_pos = ftell(f);
+  if (fgetc(f) == 'F'
+      && fgetc(f) == 'I'
+      && fgetc(f) == 'L'
+      && fgetc(f) == 'E'
+      && fgetc(f) == ':'
+      && fgetc(f) == '<'){
+    /* TRES FORTEMENT probable que nous somme au début d'un fichier, le suivant */
+    fseek(f, prev_pos, SEEK_CUR);
+    return 1;
+  }
+  /* nous ne sommes pas au début d'un fichier */
+  fseek(f, prev_pos, SEEK_CUR);
+  return 0;
+
+}
+
+int parcours_arbre(int bit, noeud* ptr_noeud){
+  /* avance d'un noeud dans l'arbre selon le bit, renvoie 1 si on est a la fin de l'arbre, dc le noeud actuel est la valeur de l'encodage */
+  if (!ptr_noeud)
+    fprintf(stderr, "erreur parcours_arbre pas censé etre ici\n");
+
+  if (!bit){
+    if (ptr_noeud->gauche)
+      ptr_noeud=ptr_noeud->gauche;
+    else
+      fprintf(stderr, "erreur parcours_arbre pas censé etre ici\n");
+  }
+
+  if (bit){
+    if (ptr_noeud->droit)
+      ptr_noeud=ptr_noeud->droit;
+    else
+      fprintf(stderr, "erreur parcours_arbre pas censé etre ici\n");
+  }
+  
+  if(est_feuille(ptr_noeud))
+    return 1;
+  return 0;
+}
 
 /* BIT READ */
 
@@ -132,10 +232,9 @@ void write_noeud(FILE*  f, noeud* noeud){
 
 void write_code(FILE*  in, FILE* out, noeud** alphabet){
   int c = 0;
-  /* la strategie ici est d'ecrire par paquets de 8bits (1o =1char, minimum writeable), on met donc l'encodeage d'un char dans le BUFFER, puis s'il depasse 8bits, on ecrits 8bits, les enleve du buffer, etc... */
+  /* ici on ecrits par paquets de 8bits (1o =1char, minimum writeable), on met donc l'encodeage d'un char dans le BUFFER, puis s'il depasse 8bits, on ecrits 8bits, les enleve du buffer, etc... */
   buffer* BUFFER = malloc(sizeof(buffer)); 
   init_buffer(BUFFER);
-
 
   /* remet la tete de lecture du fichier à compresser au début du fichier */
   rewind(in);
@@ -151,7 +250,6 @@ void write_code(FILE*  in, FILE* out, noeud** alphabet){
     while(BUFFER->size >= 8)
       write_8bits(BUFFER, out);
   printf("BREAK1\n");
-  printf("%c", BUFFER->)
   }
   printf("BREAK1\n");
   write_leftover(BUFFER, out);

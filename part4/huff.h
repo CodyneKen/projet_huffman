@@ -41,8 +41,18 @@ void creer_code(noeud *element);
 
 void creer_code_aux(noeud *element, int code, int profondeur);
 
+/* READ */
+void read_header(FILE* f, char* originalName, noeud** arbre);
 
-/* READ/WRITE */
+void read_huffman(FILE* f, noeud** arbre, int nb_noeud);
+
+void read_noeud(FILE* f, noeud* noeud);
+
+int test_FILEtag(FILE* f);
+
+int parcours_arbre(int bit, noeud* ptr_noeud);
+
+/* WRITE */
 
 void write_huffman(FILE*  f, noeud** arbre);
 
@@ -66,6 +76,7 @@ void append_encbits(char c,buffer* b, noeud** alphabet);
 void write_8bits(buffer* BUFFER, FILE* out);
 
 void write_leftover(buffer* b, FILE* out);
+
 
 /* AFFICHAGE */
 void display_huffman(noeud** arbre);
