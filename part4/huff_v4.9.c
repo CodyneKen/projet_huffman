@@ -9,8 +9,8 @@ void occurence(FILE *fic, int tab[N_CHAR]){
       /* printf("%c", c); */
       tab[c]++;
     }
-    /* else */
-    /* printf("not a char supported :char n°%d -> %c\n", c, c); */
+    else
+      fprintf(stderr, "not a char supported :char n°%d -> %c\n", c, c);
   }
 }
 
@@ -82,9 +82,37 @@ int compterNoeud(noeud **arbre){
       compt++;
   return compt;
 }
-/* READ/WRITE */
-void write_header(char* originalName, FILE*  f, noeud** arbre){
-  fprintf(f, "FILE:%s\n", originalName);
+/* READ */
+/* renvoie le noeud suivant du file */
+/* lit le fichier et renvoie le tableau d'huffman associé (alphabet)*/
+
+void read_header(FILE* f, char* originalName, noeud** arbre){
+  int nb_noeud;
+  fscanf(f, "FILE:<%s>\n", &originalName);
+  fscanf(f, "%d\n", &nb_noeud);
+  read_huffman(f, arbre);
+}
+
+void read_huffman(FILE* f, noeud** arbre, int nb_noeud){
+  int i, j;
+  noeud tmp;
+    for (j=0; j<nb_noeud; j++){
+        read_noeud(FILE* f, &tmp);
+        arbre[tmp.c]= tmp;
+    }
+} 
+
+void read_noeud(FILE* f, noeud* noeud){
+        fread(&noeud, sizeof(noeud), 1, f);
+}
+
+void read_code
+
+/* BIT READ */
+
+/* WRITE */
+void write_header(FILE* f, char* originalName, noeud** arbre){
+  fprintf(f, "FILE:<%s>\n", originalName);
   fprintf(f, "%d\n", compterNoeud(arbre) );
   write_huffman(f, arbre);
 }
@@ -113,12 +141,21 @@ void write_code(FILE*  in, FILE* out, noeud** alphabet){
   rewind(in);
   /* normalement out est positionné juste après l'écriture du header, idéal */
   while ( (c = fgetc(in)) != EOF ){
+    /* on ecrit l'encodage du char c (si supporté) dans le buffer (a droite) */
+    if (c<0 || c>127)
+      fprintf(stderr, "CHAR non supp\n");
+    else
+      append_encbits(c, BUFFER, alphabet);
+
     /* si buffer a plus de 8 bits, on les écrits, jusqua buffsize<8 (supprime les 8bits a gauche du buffer) */
-    while(BUFFER->size > 8)
+    while(BUFFER->size >= 8)
       write_8bits(BUFFER, out);
-    /* on ecrit l'encodage du char c dans le buffer (a droite) */
-    append_bits(c, BUFFER, alphabet);
+  printf("BREAK1\n");
+  printf("%c", BUFFER->)
   }
+  printf("BREAK1\n");
+  write_leftover(BUFFER, out);
+  printf("BREAK2\n");
 }
 
 void init_buffer(buffer* BUFFER){
@@ -133,19 +170,19 @@ int get_enc(int c, noeud** alphabet){
 int get_nb(int c, noeud** alphabet){
   return alphabet[c]->nb_bit;
 }
-
+/* BIT WRITE */
 /*enqueue_bit : rajoute 1 bit, "à droite" du buffer si n == 0, 0, sinon 1*/
 void enq_bit(int n, buffer* b){
   /* on créé 1 espace a droite du buffer */
   b->bits = b->bits << 1;
   b->size++;
-/*operateur ternaire <=> si n != 0, on OR le buffer avec la valeur 1, donc change 1er bit, le <<0 shift le 1, et permet de manipuler des bits individuellement sans avoir a écrire |= 2, |=4, ou toutes les puissances de 2 pour manipuler les bits individuellements*/
+/*si n != 0, on OR le buffer avec la valeur 1, donc change 1er bit, le <<0 shift le 1, et permet de manipuler des bits individuellement sans avoir a écrire |= 2, |=4, ou toutes les puissances de 2 pour manipuler les bits individuellements*/
  if (n)
-   /* si le bit a ajouté est non-null */
+   /* si le bit a ajouter est non-null */
    b->bits |= (1 << 0);
 }
 
-void append_bits(char c,buffer* b, noeud** alphabet){
+void append_encbits(char c,buffer* b, noeud** alphabet){
   int i;
   /* bit sera soit 0 soit 1*/
   int bit;
@@ -166,7 +203,7 @@ void write_8bits(buffer* b, FILE* out){
   char write_buff = 0;
   /* prendre le buffsize-ieme char, mettre dans write_buff, repeter jusqu'a size-7 ieme */
   /* si on inverse 7 et 0 dans l'entete 'for' ici, cela inverse l'ordre d'ecriture des bits au fichier */
-  for (i=7; i>=0; i-- ){
+  for (i=0; i<=7; i-- ){
         if (b->bits & (1<<(buffsize-i)))
           write_buff |= 1 << (7-i);
   }
@@ -174,6 +211,25 @@ void write_8bits(buffer* b, FILE* out){
   fwrite(&write_buff, 1, 1, out);
   /* une fois que l'on as recup les 8bits, on reduit la taille, pas besoin de remettre les bits a 0, marche comme une pile */
   b->size -= 8;
+}
+
+void write_leftover(buffer* b, FILE* out){
+  /* on sait qu'il reste entre 1 et 7 bits, buffer->size<8 */
+    /* le dernier paquet de l'encodage est le nombre de bits utiles (un char 0<n<8) */
+  int i = 0;
+  int buffsize = b->size;
+  char write_buff = 0;
+  for (i=0; i<=7; i-- ){
+    /* si on est a cours de bits à ecrire dans le buffer, on écrit des 0 */
+        if (buffsize-i<0)
+          write_buff = write_buff << 1;
+        else if (b->bits & (1<<(buffsize-i)))
+          write_buff |= 1 << (7-i);
+  }
+  fwrite(&write_buff, 1, 1, out);
+  /* a la fin de l'encodage, on écrit la taille utile du dernier octet écrit */
+  fprintf(out, "%c", b->size); 
+  b->size = 0;
 }
 
 
@@ -305,7 +361,12 @@ int main (int argc, char** argv){
     i++;
 
   /* on sait que i est non-vide, pour tester: */
-  char *compname = (char *) malloc(strlen(argv[1])+1 );
+  char *compname = (char *) malloc(strlen(argv[1])+5 );
+  if (!compname){
+    fprintf(stderr, "compname erreur a la ligne %d\n", __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
   strcpy(compname, argv[1]);
   compname = strcat(compname, "comp");
   FILE *fcomp = fopen(compname, "wb");
@@ -315,7 +376,7 @@ int main (int argc, char** argv){
   }
 
   creer_code(arbre_huffman[i]);
-  write_header(argv[1], fcomp, alphabet);
+  write_header(fcomp, argv[1], alphabet);
   write_code(fin, fcomp, alphabet);
 
     /*     if (arbre_huffman) */

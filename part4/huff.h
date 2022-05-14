@@ -51,8 +51,6 @@ void write_noeud(FILE*  f, noeud* noeud);
 
 void write_code(FILE*  in, FILE* out, noeud** alphabet);
 
-void write_binary(FILE*  f, int nbr_bits, int codage);
-
 /* RECUP / BIN_MANIPULATION*/
 
 void init_buffer(buffer* BUFFER);
@@ -63,10 +61,11 @@ int get_nb(int c,noeud** alphabet);
 
 void enq_bit(int n, buffer* b);
 
-void append_bits(char c,buffer* b, noeud** alphabet);
+void append_encbits(char c,buffer* b, noeud** alphabet);
 
 void write_8bits(buffer* BUFFER, FILE* out);
 
+void write_leftover(buffer* b, FILE* out);
 
 /* AFFICHAGE */
 void display_huffman(noeud** arbre);
