@@ -1,6 +1,6 @@
 #include "huff.h"
 
-void occurence(FILE *fic, int tab[N_CHAR]) {
+void occurrence(FILE *fic, int tab[N_CHAR]) {
     int c = 0;
     while ((c = fgetc(fic)) != EOF) {
         if (c < N_CHAR) {
@@ -108,15 +108,14 @@ void write_code(FILE *in, FILE *out, noeud **alphabet) {
     buffer *BUFFER = malloc(sizeof(buffer));
     init_buffer(BUFFER);
 
-
     /* remet la tete de lecture du fichier à compresser au début du fichier */
     rewind(in);
     /* normalement out est positionné juste après l'écriture du header, idéal */
     while ((c = fgetc(in)) != EOF) {
-        /* si buffer a plus de 8 bits, on les écrits, jusqua buffsize<8 (supprime les 8bits a gauche du buffer) */
+        /* si buffer a plus de 8 bits, on les écrit, jusqu'a buffsize<8 (supprime les 8bits à gauche du buffer) */
         while (BUFFER->size > 8)
             write_8bits(BUFFER, out);
-        /* on ecrit l'encodage du char c dans le buffer (a droite) */
+        /* on écrit l'encodage du char c dans le buffer (a droite) */
         append_bits(c, BUFFER, alphabet);
     }
 }
@@ -214,7 +213,7 @@ void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2) {
         }
 
         if (nbElement == 1) {
-            /* tant que arbre[i] pas défini (donc pas d'occurence) */
+            /* tant qu'arbre[i] pas défini (donc pas d'occurence) */
             while (!arbre[i])
                 i++;
 
@@ -254,31 +253,59 @@ void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2) {
     }
 }
 
-int main(int argc, char **argv) {
-    FILE *fin;
-    int *occ = calloc(N_CHAR, sizeof(int));
-    if (!occ)
-        fprintf(stderr, "occ erreur a la ligne %d\n", __LINE__);
+char *get_extension(char *name) {
+    char *point = strrchr(name, '.'); /* Permet de trouver le dernier '.' de name */
+    if (!point) {
+        fprintf(stderr, "Le fichier n'a pas d'extension\n");
+        exit(EXIT_FAILURE);
+    }
+    return point + 1;
+}
+
+void usage(int argc, char **argv) {
+    fprintf(stderr, "Usage %s [Options] <file_name> [<directory>]\n", argv[0]);
+    fprintf(stderr, "Options :\n");
+    fprintf(stderr, "\t-c\t: fait une compression de <file_name>;\n");
+    fprintf(stderr,
+            "\t-d\t: fait une decompression de <file_name> si <directory> est renseigne, decompresse dans ce repertoire;\n");
+    fprintf(stderr, "\t-h\t: affiche le man;\n");
+    exit(EXIT_FAILURE);
+}
+
+
+void print_man(char **argv) {
     int i;
-    int taille = 0;
+    fprintf(stderr, "%s(3)\tPersonnal C Functions\t%s(3)\n", argv[0], argv[0]);
+    fprintf(stderr, "NAME\n\tnoeud **compression(),\n");
+    fprintf(stderr, "\nSYNOPSYS\n\t#include \"huff.h\"\n");
+    fprintf(stderr, "compression(FILE *f) va lancer une compression du fichier par l'arbre de Huffman\n");
+    fprintf(stderr,
+            "decompression(FILE *f) va lancer une decompression du fichier en recreant l'arbre de Huffman\n");
+    fprintf(stderr, "\n");
+    exit(EXIT_FAILURE);
+}
 
-    if (argc < 2) {
-        printf("Merci de fournir un nom de fichier\n");
+FILE *launch_comp(FILE *file, char *fname) {
+    /* Dans cette fonction a partir d'un fichier on va lancer sa compression.*/
+    int i, taille = 0;
+    int *occ = NULL;
+    noeud **arbre_huffman = NULL, **alphabet = NULL;
+    occ = calloc(N_CHAR, sizeof(int));
+    if (!occ) {
+        fprintf(stderr, "Erreur lors de l'allocation memoire de occ\n");
         exit(EXIT_FAILURE);
     }
-    /* on essaye d'ouvrir le fichier, erreur sinon :*/
-    fin = fopen(argv[1], "r");
-    /* f = fopen(argv[1], "rb"); */
-    if (!fin) {
-        fprintf(stderr, "fichier impossible à ouvrir\n");
-        exit(EXIT_FAILURE);
-    }
-    occurence(fin, occ);
-    noeud **arbre_huffman = NULL;
     arbre_huffman = calloc(N_CHAR, sizeof(noeud *));
-    noeud **alphabet = NULL;
+    if (!arbre_huffman) {
+        fprintf(stderr, "Erreur lors de l'allocation memoire de arbre_huffman\n");
+        exit(EXIT_FAILURE);
+    }
     alphabet = calloc(N_CHAR, sizeof(noeud *));
-
+    if (!alphabet) {
+        fprintf(stderr, "Erreur lors de l'allocation memoire de alphabet\n");
+        exit(EXIT_FAILURE);
+    }
+    occurrence(file, occ);
     if (!arbre_huffman)
         fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
     if (!alphabet)
@@ -302,18 +329,84 @@ int main(int argc, char **argv) {
         i++;
 
     /* on sait que i est non-vide, pour tester: */
-    char *compname = (char *) malloc(strlen(argv[1]) + 1);
-    strcpy(compname, argv[1]);
+    char *compname = (char *) malloc((strlen(fname) + 4) * sizeof(char));
+    if (!compname) {
+        fprintf(stderr, "Erreur de l'attribution memoire de compname\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(compname, fname);
     compname = strcat(compname, "comp");
     FILE *fcomp = fopen(compname, "wb");
     if (!fcomp) {
-        fprintf(stderr, "fichier impossible à ouvrir\n");
+        fprintf(stderr, "fichier impossible à ouvrir. Veuillez verifier son existence\n");
         exit(EXIT_FAILURE);
     }
 
     creer_code(arbre_huffman[i]);
-    write_header(argv[1], fcomp, alphabet);
-    write_code(fin, fcomp, alphabet);
+    write_header(fname, fcomp, alphabet);
+    write_code(file, fcomp, alphabet);
+    return fcomp;
+}
+
+FILE *launch_decomp(FILE *, char *directory) {
+    FILE *fout = NULL;
+    fprintf(stdout, "En construction\n");
+    return fout;
+}
+
+int main(int argc, char **argv) {
+
+    FILE *fin, *fout;
+    int *occ;
+    occ = calloc(N_CHAR, sizeof(int));
+    if (!occ)
+        fprintf(stderr, "occ erreur a la ligne %d\n", __LINE__);
+    int i, c, taille = 0;
+    int compression, decompression, multi_files;
+
+    char *ext;
+
+    compression = decompression = multi_files = 0;
+
+
+    /* Traitement des arguments de la ligne de commande a l'aide de la fonction getopt */
+    while ((c = getopt(argc, argv, "cd:h")) != -1) {
+        switch (c) {
+            case 'c':
+                compression = 1;
+                break;
+            case 'd':
+                decompression = 1;
+                break;
+            case 'h':
+                print_man(argv);
+            default:
+                usage(argc, argv);
+        }
+    }
+
+    /* On teste si on a suffisamment d'arguments ou si on veut une compression et une decompression en meme temps*/
+    if (argc < 3 || (compression == 1 && decompression == 1)) usage(argc, argv);
+    /* on essaye d'ouvrir le fichier, erreur sinon :*/
+    fin = fopen(argv[2], "r");
+    /* f = fopen(argv[1], "rb"); */
+    if (!fin) {
+        fprintf(stderr, "fichier impossible à ouvrir\n");
+        exit(EXIT_FAILURE);
+    }
+    ext = get_extension(argv[2]);
+    if (compression && strcmp(ext, "txt"))
+        fout = launch_comp(fin, argv[2]);
+    else if (compression && !strcmp(ext, "txt")) {
+        fprintf(stderr, "Ce type de fichier n'est pas pris en charge\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (decompression && argv[3])
+        fout = launch_decomp(fin, argv[3]);
+    else if (decompression && IS_POSIX == 1)
+        /* getenv permet d'accéder aux variables d'environnement */
+        fout = launch_decomp(fin, getenv("PWD"));
 
     /*     if (arbre_huffman) */
     /*       detruire_arbre_huff(arbre_huffman); */

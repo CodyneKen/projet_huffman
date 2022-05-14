@@ -1,13 +1,23 @@
+#ifndef PROJET_HUFFMAN
+#define PROJET_HUFFMAN
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <unistd.h>
 
 /*max number of chars able to be encoded by the algo*/
 #define N_CHAR 128
 /*max number of bits for encoding*/
 #define BIT_ENC 256
+
+#ifdef __unix__
+#define IS_POSIX 1
+#else
+#define IS_POSIX 0
+#endif
 
 /* commandes utliles : hexdump -C test */
 
@@ -83,9 +93,18 @@ void detruire_noeud(noeud *noeud);
 void detruire_feuille(noeud *noeud);
 
 /* INFORMATION */
-void occurence(FILE *fic, int tab[N_CHAR]);
+void occurrence(FILE *fic, int tab[N_CHAR]);
 
 int est_feuille(noeud *noeud);
 
 void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2);
 
+void usage(int argc, char **argv);
+
+void print_man(char **argv);
+
+FILE *launch_comp(FILE *file, char *fname);
+
+FILE *launch_decomp(FILE *, char *directory);
+
+#endif
