@@ -275,13 +275,21 @@ void usage(int argc, char **argv) {
 
 void print_man(char **argv) {
     int i;
-    fprintf(stderr, "%s(3)\tPersonnal C Functions\t%s(3)\n", argv[0], argv[0]);
-    fprintf(stderr, "NAME\n\tnoeud **compression(),\n");
-    fprintf(stderr, "\nSYNOPSYS\n\t#include \"huff.h\"\n");
-    fprintf(stderr, "compression(FILE *f) va lancer une compression du fichier par l'arbre de Huffman\n");
+    fprintf(stderr, "%s(3)\t\tPersonnal C Functions\t\t%s(3)\n", argv[0], argv[0]);
+    fprintf(stderr, "NAME\n\tlaunch_comp, launch_decomp\n");
+    fprintf(stderr, "\nSYNOPSYS\n\t#include \"huff.h\"\n\tFILE *launch_comp(FILE *file, char *fname);\n\t");
+    fprintf(stderr, "FILE *launch_decomp(FILE *file, char *directory);\n\n");
     fprintf(stderr,
-            "decompression(FILE *f) va lancer une decompression du fichier en recreant l'arbre de Huffman\n");
-    fprintf(stderr, "\n");
+            "DESCRIPTION\n\tLa fonction launch_comp() permet de compresser un fichier en suivant le codage de Huffman\n");
+    fprintf(stderr,
+            "\tLa fonction launch_decomp() permet de decompresser un fichier ayant ete compresser a l'aide du codage de Huffman\n\n");
+    fprintf(stderr, "UJM");
+    for (i = 0; i < 4; i++)
+        fprintf(stderr, "\t");
+    fprintf(stderr, "2022-05");
+    for (i = 0; i < 4; i++)
+        fprintf(stderr, "\t");
+    fprintf(stderr, "%s(3)\n", argv[0]);
     exit(EXIT_FAILURE);
 }
 
@@ -348,7 +356,7 @@ FILE *launch_comp(FILE *file, char *fname) {
     return fcomp;
 }
 
-FILE *launch_decomp(FILE *, char *directory) {
+FILE *launch_decomp(FILE *file, char *directory) {
     FILE *fout = NULL;
     fprintf(stdout, "En construction\n");
     return fout;
