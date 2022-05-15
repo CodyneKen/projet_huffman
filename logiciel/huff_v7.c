@@ -89,14 +89,16 @@ void read_header(FILE *f, char *originalName, noeud **arbre) {
     int nb_noeud = -1;
     fscanf(f, "FILE:<%s>\n", originalName);
     fscanf(f, "%d\n", &nb_noeud);
+    printf("%d\n", nb_noeud);
     read_huffman(f, arbre, nb_noeud);
 }
 
 void read_huffman(FILE *f, noeud **alphabet, int nb_noeud) {
     int i;
-    noeud *tmp;
+    noeud *tmp = NULL;
+
     for (i = 0; i < nb_noeud; i++) {
-        tmp = (noeud *) malloc(sizeof(noeud));
+        tmp = malloc(sizeof(noeud *));
         if (!tmp) {
             fprintf(stderr, "Erreur lors de l'allocation memoire de tmp\n");
             exit(EXIT_FAILURE);
@@ -106,54 +108,65 @@ void read_huffman(FILE *f, noeud **alphabet, int nb_noeud) {
     }
 }
 
-void read_noeud(FILE *f, noeud *noeud) {
-    fread(&noeud, sizeof(noeud), 1, f);
+void read_noeud(FILE *f, noeud *noeud_read) {
+  noeud* tmp = NULL;
+  tmp = malloc(sizeof(noeud));
+  /* char c; */
+  /* long int pos = 0; */
+  /* pos = ftell(f); */
+  /* printf("- %ld -\n", pos); */
+  /* c =  fgetc(f); */
+  /* printf("- %c -\n", c); */
+  /* ungetc(c, f); */
+  fread(tmp, sizeof(struct noeud), 1, f);
+  printf("%d -c\n", tmp->c);
+  printf("%d -occ\n", tmp->occ);
 }
 
 void read_code(FILE *in, FILE *out, noeud **alphabet) {
-    /* on créé l'arbre a partir de l'alphabet */
-    int i, j;
-    int taille = 0;
-    /* prev_pos utilisé avec ftell pour enregistrer la position dans le fichier */
-    /* utile pour voir si on est arrivé a un tag FILE:"nom_fichier" */
-    char c;
-    int bit;
-    noeud **arbre_huffman = NULL;
-    arbre_huffman = calloc(N_CHAR, sizeof(noeud *));
-    if (!arbre_huffman)
-        fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
-    noeud *ptr_noeud = malloc(sizeof(noeud *));
+  /* on créé l'arbre a partir de l'alphabet */
+  int i, j;
+  int taille = 0;
+  /* prev_pos utilisé avec ftell pour enregistrer la position dans le fichier */
+  /* utile pour voir si on est arrivé a un tag FILE:"nom_fichier" */
+  char c;
+  int bit;
+  noeud **arbre_huffman = NULL;
+  arbre_huffman = calloc(N_CHAR, sizeof(noeud *));
+  if (!arbre_huffman)
+    fprintf(stderr, "arbre_huffman erreur a la ligne %d\n", __LINE__);
+  noeud *ptr_noeud = malloc(sizeof(noeud *));
 
 
-    /* création d'une copie de alphabet, pour le transformer en arbre d'huffman*/
-    for (i = 0; i < N_CHAR; i++) {
-        if (alphabet[i]) {
-            taille++;
+  /* création d'une copie de alphabet, pour le transformer en arbre d'huffman*/
+  for (i = 0; i < N_CHAR; i++) {
+    if (alphabet[i]) {
+      taille++;
 
-            arbre_huffman[i] = calloc(1, sizeof(noeud));
-            if (!arbre_huffman[i])
-                fprintf(stderr, "erreur alloc arbre_huffman noeud a la ligne %d\n", __LINE__);
+      arbre_huffman[i] = calloc(1, sizeof(noeud));
+      if (!arbre_huffman[i])
+        fprintf(stderr, "erreur alloc arbre_huffman noeud a la ligne %d\n", __LINE__);
 
-            arbre_huffman[i]->c = alphabet[i]->c;
-            arbre_huffman[i]->occ = alphabet[i]->occ;
+      arbre_huffman[i]->c = alphabet[i]->c;
+      arbre_huffman[i]->occ = alphabet[i]->occ;
 
-        }
     }
-    /* création de l'arbre */
-    while (taille > 1) {
-        creer_noeud(arbre_huffman, taille);
-        taille--;
-    }
-/* trouver la racine de l'arbre */
-    while (!arbre_huffman[i])
-        i++;
+  }
+  /* création de l'arbre */
+  while (taille > 1) {
+    creer_noeud(arbre_huffman, taille);
+    taille--;
+  }
+  /* trouver la racine de l'arbre */
+  while (!arbre_huffman[i])
+    i++;
 
-    ptr_noeud = arbre_huffman[i];
-    while ((c = fgetc(in)) != EOF) {
-        if (c == 'F') {
-            ungetc(c, in);
-            if (test_FILEtag(in))
-                /* arrivé a un tag FILE, donc début du fichier suivant */
+  ptr_noeud = arbre_huffman[i];
+  while ((c = fgetc(in)) != EOF) {
+    if (c == 'F') {
+      ungetc(c, in);
+      if (test_FILEtag(in))
+        /* arrivé a un tag FILE, donc début du fichier suivant */
                 break;
             c = fgetc(in);
         }
@@ -228,7 +241,7 @@ void write_huffman(FILE *f, noeud **arbre) {
 
 void write_noeud(FILE *f, noeud *noeud) {
     /* printf("char n°%d :", noeud->c); */
-    fwrite(&noeud, sizeof(struct noeud), 1, f);
+    fwrite(noeud, sizeof(struct noeud), 1, f);
 }
 
 void write_code(FILE *in, FILE *out, noeud **alphabet) {
@@ -516,7 +529,7 @@ void launch_decomp(FILE *file, char *comp_name) {
 
 
     noeud **alphabet = NULL;
-    alphabet = (noeud **) calloc(N_CHAR, sizeof(noeud *));
+    alphabet = calloc(N_CHAR, sizeof(noeud *));
     if (!alphabet) {
         fprintf(stderr, "Erreur lors de l'allocation memoire de alphabet\n");
         exit(EXIT_FAILURE);
