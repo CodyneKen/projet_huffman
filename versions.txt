@@ -2,10 +2,34 @@ Historique des versions:
 
 <!> v0.x correspond aux reponses de la 1re partie de l'énoncé,v1.x à la 2e, etc
 
-huff_v0.1.c : A FAIRE AVEC FREAD q1, affiche les 10 premières lignes du fichier passé en argument
+huff_v1.1.c : A FAIRE AVEC FREAD q1, affiche les 10 premières lignes du fichier passé en argument
 
-huff_v0.2.c : Affiche l'intégralité du fichier passé en argument 
+huff_v1.2.c : Affiche l'intégralité du fichier passé en argument 
 
-huff_v0.3.c : Ajout de la fonction occurrence qui compte le nombre d'occurrence de chaque char du fichier
+huff_v1.3.c : Ajout de la fonction occurrence qui compte le nombre d'occurrence de chaque char du fichier
 
-huff_v1.1.c : 
+huff_v2.4.c :
+
+A NOTER : Nous avons a ce moment remarqués que notre programme encodait mal les char>127 (extended ASCII ou utf-8 ?) dans les arbres. En effet: 
+unsigned char 'a' == int 'a'
+mais
+unsigned char 'é' != int 'é' (160 != 50089 pour info)
+ce qui empêche toute classification dans un tableau (simple du moins) des char>127, les affichages sont arbitraires, et non-prévisibles ex:
+      printf("%c", c);
+      printf("%c", c);
+      affiche : > �é
+      ou        > é�
+      ou        > ��
+
+quand nous essayons d'insérer l'int c, dont la valeur a été récup avec fgetc, nous obtenons 2 entrées dans le tableau des occurrences :
+char n°169 :� ->8
+char n°195 :� ->8
+VS
+char n°113 :q ->4
+char n°115 :s ->4
+pour les autres char. Nous supposons que 'é' par exemple, encodé en unicode par défaut rentre sur 2o et non 1o
+comme les char ASCII basiques, or comme la table de l'énoncé ne fait spécifiquement que 1o (tab[256]),
+l'insertion est impossible et 2 éléments correspondants au 2 parties de l'encodage du char en utf-8.
+La résolution de ce problème parais plus complexe que nécessaire à l'échelle de ce projet, nous nous limiterons donc aux 128 char de la table ASCII.
+
+huff_v2.7.c : 

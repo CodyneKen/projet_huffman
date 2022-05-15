@@ -14,5 +14,6 @@ int main(int argc, char **argv) {
     if ((f = fopen(argv[1], "r"))) {
         while ((c = fgetc(f)) != EOF)
             printf("%c", c);
-    }
+    } else
+        printf("Erreur lors de l'ouverture\n");
 }
