@@ -52,40 +52,40 @@ void creer_code(noeud *element);
 void creer_code_aux(noeud *element, int code, int profondeur);
 
 /* READ */
-void read_header(FILE* f, char* originalName, noeud** arbre);
+void read_header(FILE *f, char *originalName, noeud **arbre);
 
-void read_huffman(FILE* f, noeud** arbre, int nb_noeud);
+void read_huffman(FILE *f, noeud **arbre, int nb_noeud);
 
-void read_noeud(FILE* f, noeud* noeud);
+void read_noeud(FILE *f, noeud *noeud);
 
-int test_FILEtag(FILE* f);
+int test_FILEtag(FILE *f);
 
-int parcours_arbre(int bit, noeud* ptr_noeud);
+int parcours_arbre(int bit, noeud *ptr_noeud);
 
 /* WRITE */
 
-void write_huffman(FILE*  f, noeud** arbre);
+void write_huffman(FILE *f, noeud **arbre);
 
 void write_noeud(FILE *f, noeud *noeud);
 
 
-void write_code(FILE*  in, FILE* out, noeud** alphabet);
+void write_code(FILE *in, FILE *out, noeud **alphabet);
 
 /* RECUP / BIN_MANIPULATION*/
 
-void init_buffer(buffer* BUFFER);
+void init_buffer(buffer *BUFFER);
 
-int get_enc(int c,noeud** alphabet);
+int get_enc(int c, noeud **alphabet);
 
-int get_nb(int c,noeud** alphabet);
+int get_nb(int c, noeud **alphabet);
 
-void enq_bit(int n, buffer* b);
+void enq_bit(int n, buffer *b);
 
-void append_encbits(char c,buffer* b, noeud** alphabet);
+void append_encbits(char c, buffer *b, noeud **alphabet);
 
-void write_8bits(buffer* BUFFER, FILE* out);
+void write_8bits(buffer *BUFFER, FILE *out);
 
-void write_leftover(buffer* b, FILE* out);
+void write_leftover(buffer *b, FILE *out);
 
 
 /* AFFICHAGE */
@@ -115,6 +115,8 @@ void usage(int argc, char **argv);
 void print_man(char **argv);
 
 void launch_comp(FILE *file, char *fname);
+
+void launch_compn(FILE *file, char *fname, char *fout);
 
 void launch_decomp(FILE *, char *file_name);
 

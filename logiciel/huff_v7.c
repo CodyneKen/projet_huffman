@@ -101,7 +101,7 @@ void read_huffman(FILE *f, noeud **alphabet, int nb_noeud) {
             fprintf(stderr, "Erreur lors de l'allocation memoire de tmp\n");
             exit(EXIT_FAILURE);
         }
-        read_noeud(f, tmp);
+        read_noeud(f, tmp);;
         alphabet[tmp->c] = tmp;
     }
 }
@@ -301,7 +301,7 @@ void write_8bits(buffer *b, FILE *out) {
     char write_buff = 0;
     /* prendre le buffsize-ieme char, mettre dans write_buff, repeter jusqu'a size-7 ieme */
     /* si on inverse 7 et 0 dans l'entete 'for' ici, cela inverse l'ordre d'ecriture des bits au fichier */
-    for (i = 0; i <= 7; i--) {
+    for (i = 0; i <= 7; i++) {
         if (b->bits & (1 << (buffsize - i)))
             write_buff |= 1 << (7 - i);
     }
@@ -516,20 +516,17 @@ void launch_decomp(FILE *file, char *comp_name) {
     file_name = strdup(comp_name);
     file_name[strlen(comp_name) - 4] = '\0';
 
-
     noeud **alphabet = NULL;
     alphabet = (noeud **) calloc(N_CHAR, sizeof(noeud *));
     if (!alphabet) {
         fprintf(stderr, "Erreur lors de l'allocation memoire de alphabet\n");
         exit(EXIT_FAILURE);
     }
-
     fout = fopen(file_name, "wb");
     if (!fout) {
         fprintf(stderr, "fichier impossible à ouvrir. Veuillez verifier son existence\n");
         exit(EXIT_FAILURE);
     }
-
     read_header(file, comp_name, alphabet);
     read_code(file, fout, alphabet);
 }
@@ -546,8 +543,7 @@ int main(int argc, char **argv) {
     char *ext;
 
     compression = decompression = multi_files = 0;
-
-
+    
     /* Traitement des arguments de la ligne de commande a l'aide de la fonction getopt */
     while ((c = getopt(argc, argv, "cd:h")) != -1) {
         switch (c) {
@@ -583,9 +579,9 @@ int main(int argc, char **argv) {
 
     if (decompression && argv[3])
         launch_decomp(fin, argv[3]);
-    else if (decompression && IS_POSIX == 1)
-        /* getenv permet d'accéder aux variables d'environnement */
+    else if (decompression && IS_POSIX == 1)/* getenv permet d'accéder aux variables d'environnement */
         launch_decomp(fin, getenv("PWD"));
+
 
     /*     if (arbre_huffman) */
     /*       detruire_arbre_huff(arbre_huffman); */
