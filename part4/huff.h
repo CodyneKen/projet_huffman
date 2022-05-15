@@ -24,11 +24,11 @@ typedef struct noeud {
 
 
 /* struct buffer utilisée pour manipuler et écrire les encodages huffman sur le fichier de sortie */
-typedef struct buffer {
-    /* la taille max d'un encoding de huffman est 16bits, donc en ayant 32 bits, on se donne de la marge de secours */
-    /* unsigned int 32bits, car signed peut provoquer erreurs sur bitwise operators */
-    uint32_t bits;
-    int size;
+typedef struct buffer{
+  /* la taille max d'un encoding de huffman est 16bits, donc en ayant 32 bits, on se donne de la marge de secours */
+  /* unsigned int 32bits, car signed peut provoquer erreurs sur bitwise operators */ 
+  uint32_t bits;
+  int size;
 } buffer;
 
 
@@ -41,31 +41,41 @@ void creer_code(noeud *element);
 
 void creer_code_aux(noeud *element, int code, int profondeur);
 
+/* READ */
+void read_header(FILE* f, char* originalName, noeud** arbre);
 
-/* READ/WRITE */
+void read_huffman(FILE* f, noeud** arbre, int nb_noeud);
 
-void write_huffman(FILE *f, noeud **arbre);
+void read_noeud(FILE* f, noeud* noeud);
+
+int test_FILEtag(FILE* f);
+
+int parcours_arbre(int bit, noeud* ptr_noeud);
+
+/* WRITE */
+
+void write_huffman(FILE*  f, noeud** arbre);
 
 void write_noeud(FILE *f, noeud *noeud);
 
 
-void write_code(FILE *in, FILE *out, noeud **alphabet);
-
-void write_binary(FILE *f, int nbr_bits, int codage);
+void write_code(FILE*  in, FILE* out, noeud** alphabet);
 
 /* RECUP / BIN_MANIPULATION*/
 
-void init_buffer(buffer *BUFFER);
+void init_buffer(buffer* BUFFER);
 
-int get_enc(int c, noeud **alphabet);
+int get_enc(int c,noeud** alphabet);
 
-int get_nb(int c, noeud **alphabet);
+int get_nb(int c,noeud** alphabet);
 
-void enq_bit(int n, buffer *b);
+void enq_bit(int n, buffer* b);
 
-void append_bits(char c, buffer *b, noeud **alphabet);
+void append_encbits(char c,buffer* b, noeud** alphabet);
 
-void write_8bits(buffer *BUFFER, FILE *out);
+void write_8bits(buffer* BUFFER, FILE* out);
+
+void write_leftover(buffer* b, FILE* out);
 
 
 /* AFFICHAGE */
