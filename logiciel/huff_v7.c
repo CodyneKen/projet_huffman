@@ -403,7 +403,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     ext = get_extension(argv[2]);
-    printf("- %s - \n");
+    printf("- %s - \n", ext);
     if (compression && !strcmp(ext, "txt"))
         fout = launch_comp(fin, argv[2]);
     else if (compression && strcmp(ext, "txt") != 0) {
