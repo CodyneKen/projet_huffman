@@ -403,9 +403,10 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     ext = get_extension(argv[2]);
-    if (compression && strcmp(ext, "txt"))
+    printf("- %s - \n");
+    if (compression && !strcmp(ext, "txt"))
         fout = launch_comp(fin, argv[2]);
-    else if (compression && !strcmp(ext, "txt")) {
+    else if (compression && strcmp(ext, "txt") != 0) {
         fprintf(stderr, "Ce type de fichier n'est pas pris en charge\n");
         exit(EXIT_FAILURE);
     }
