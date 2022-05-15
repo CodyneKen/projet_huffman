@@ -103,8 +103,8 @@ void usage(int argc, char **argv);
 
 void print_man(char **argv);
 
-FILE *launch_comp(FILE *file, char *fname);
+void launch_comp(FILE *file, char *fname);
 
-FILE *launch_decomp(FILE *, char *directory);
+void launch_decomp(FILE *, char *directory);
 
 #endif

@@ -256,7 +256,7 @@ void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2) {
 char *get_extension(char *name) {
     char *point = strrchr(name, '.'); /* Permet de trouver le dernier '.' de name */
     if (!point) {
-        fprintf(stderr, "Le fichier n'a pas d'extension\n");
+        fprintf(stderr, "Le fichier %s n'a pas d'extension\n", name);
         exit(EXIT_FAILURE);
     }
     return point + 1;

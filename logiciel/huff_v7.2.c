@@ -256,7 +256,7 @@ void find2Lowest(noeud **arbre, int nbElement, int *low1, int *low2) {
 char *get_extension(char *name) {
     char *point = strrchr(name, '.'); /* Permet de trouver le dernier '.' de name */
     if (!point) {
-        fprintf(stderr, "Le fichier n'a pas d'extension\n");
+        fprintf(stderr, "Le fichier %s n'a pas d'extension\n", name);
         exit(EXIT_FAILURE);
     }
     return point + 1;
@@ -275,26 +275,26 @@ void usage(int argc, char **argv) {
 
 void print_man(char **argv) {
     int i;
-    fprintf(stderr, "%s(3)\t\tPersonnal C Functions\t\t%s(3)\n", argv[0], argv[0]);
-    fprintf(stderr, "NAME\n\tlaunch_comp, launch_decomp\n");
-    fprintf(stderr, "\nSYNOPSYS\n\t#include \"huff.h\"\n\tFILE *launch_comp(FILE *file, char *fname);\n\t");
-    fprintf(stderr, "FILE *launch_decomp(FILE *file, char *directory);\n\n");
-    fprintf(stderr,
+    fprintf(stdout, "%s(3)\t\tPersonnal C Functions\t\t%s(3)\n", argv[0], argv[0]);
+    fprintf(stdout, "NAME\n\tlaunch_comp, launch_decomp\n");
+    fprintf(stdout, "\nSYNOPSYS\n\t#include \"huff.h\"\n\tvoid launch_comp(FILE *file, char *fname);\n\t");
+    fprintf(stdout, "void launch_decomp(FILE *file, char *directory);\n\n");
+    fprintf(stdout,
             "DESCRIPTION\n\tLa fonction launch_comp() permet de compresser un fichier en suivant le codage de Huffman\n");
-    fprintf(stderr,
+    fprintf(stdout,
             "\tLa fonction launch_decomp() permet de decompresser un fichier ayant ete compresser a l'aide du codage de Huffman\n\n");
-    fprintf(stderr, "UJM");
+    fprintf(stdout, "UJM");
     for (i = 0; i < 4; i++)
-        fprintf(stderr, "\t");
-    fprintf(stderr, "2022-05");
+        fprintf(stdout, "\t");
+    fprintf(stdout, "2022-05");
     for (i = 0; i < 4; i++)
-        fprintf(stderr, "\t");
-    fprintf(stderr, "%s(3)\n", argv[0]);
-    exit(EXIT_FAILURE);
+        fprintf(stdout, "\t");
+    fprintf(stdout, "%s(3)\n", argv[0]);
+    exit(EXIT_SUCCESS);
 }
 
-FILE *launch_comp(FILE *file, char *fname) {
-    /* Dans cette fonction a partir d'un fichier on va lancer sa compression.*/
+void launch_comp(FILE *file, char *fname) {
+    /* Dans cette fonction à partir d'un fichier, on va lancer sa compression.*/
     int i, taille = 0;
     int *occ = NULL;
     noeud **arbre_huffman = NULL, **alphabet = NULL;
@@ -353,13 +353,11 @@ FILE *launch_comp(FILE *file, char *fname) {
     creer_code(arbre_huffman[i]);
     write_header(fname, fcomp, alphabet);
     write_code(file, fcomp, alphabet);
-    return fcomp;
 }
 
-FILE *launch_decomp(FILE *file, char *directory) {
+void launch_decomp(FILE *file, char *directory) {
     FILE *fout = NULL;
     fprintf(stdout, "En construction\n");
-    return fout;
 }
 
 int main(int argc, char **argv) {
@@ -371,8 +369,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "occ erreur a la ligne %d\n", __LINE__);
     int i, c, taille = 0;
     int compression, decompression, multi_files;
-
-    char *ext, *archive = "tar cvzf Huff_V2.tar.gz ";
+    char *ext;
 
     compression = decompression = multi_files = 0;
 
@@ -406,21 +403,19 @@ int main(int argc, char **argv) {
             }
             ext = get_extension(argv[i]);
             if (strcmp(ext, "txt") == 0)
-                fout = launch_comp(fin, argv[i]);
+                launch_comp(fin, argv[i]);
             else if (strcmp(ext, "txt") != 0) {
                 fprintf(stderr, "Ce type de fichier n'est pas pris en charge\n");
                 exit(EXIT_FAILURE);
             }
         }
-        strcat(archive, getenv("PWD"));
-        system(archive);
     }
 
     if (decompression && argv[3])
-        fout = launch_decomp(fin, argv[3]);
+        launch_decomp(fin, argv[3]);
     else if (decompression && IS_POSIX == 1)
-        /* getenv permet d'accéder aux variables d'environnement */
-        fout = launch_decomp(fin, getenv("PWD"));
+        /* getenv permet d'accéder aux variables d'environnement ici la variable $PWD */
+        launch_decomp(fin, getenv("PWD"));
 
     /*     if (arbre_huffman) */
     /*       detruire_arbre_huff(arbre_huffman); */
