@@ -250,10 +250,8 @@ void write_code(FILE *in, FILE *out, noeud **alphabet) {
         /* si buffer a plus de 8 bits, on les écrits, jusqua buffsize<8 (supprime les 8bits a gauche du buffer) */
         while (BUFFER->size >= 8)
             write_8bits(BUFFER, out);
-        printf("merci de patienter\n");
     }
     write_leftover(BUFFER, out);
-    printf("fini !\n");
 }
 
 void init_buffer(buffer *BUFFER) {
@@ -301,7 +299,7 @@ void write_8bits(buffer *b, FILE *out) {
     char write_buff = 0;
     /* prendre le buffsize-ieme char, mettre dans write_buff, repeter jusqu'a size-7 ieme */
     /* si on inverse 7 et 0 dans l'entete 'for' ici, cela inverse l'ordre d'ecriture des bits au fichier */
-    for (i = 0; i <= 7; i--) {
+    for (i = 0; i <= 7; i++) {
         if (b->bits & (1 << (buffsize - i)))
             write_buff |= 1 << (7 - i);
     }
