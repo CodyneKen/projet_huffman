@@ -32,4 +32,9 @@ comme les char ASCII basiques, or comme la table de l'énoncé ne fait spécifiq
 l'insertion est impossible et 2 éléments correspondants au 2 parties de l'encodage du char en utf-8.
 La résolution de ce problème parais plus complexe que nécessaire à l'échelle de ce projet, nous nous limiterons donc aux 128 char de la table ASCII.
 
-huff_v2.7.c : 
+huff_v2.7.c : Ajout de vérifications des arguments sur la ligne de commande avec la fonction getopt.
+              Création de fonctions launch_comp et launch_decomp pour avoir un main ayant juste des appels de fonctions.
+              Création de fonctions d'usage et d'affichage du man.
+              Cette version du logiciel permet de compresser un seul fichier .txt
+
+huff_v2.7.c : Cette version du logiciel permet de compresser différents fichiers au format .txt dans une seule archive.
