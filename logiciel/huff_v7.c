@@ -108,19 +108,17 @@ void read_huffman(FILE *f, noeud **alphabet, int nb_noeud) {
     }
 }
 
-void read_noeud(FILE *f, noeud *noeud_read) {
-  noeud* tmp = NULL;
-  tmp = malloc(sizeof(noeud));
-  /* char c; */
-  /* long int pos = 0; */
-  /* pos = ftell(f); */
-  /* printf("- %ld -\n", pos); */
-  /* c =  fgetc(f); */
-  /* printf("- %c -\n", c); */
-  /* ungetc(c, f); */
-  fread(tmp, sizeof(struct noeud), 1, f);
-  printf("%d -c\n", tmp->c);
-  printf("%d -occ\n", tmp->occ);
+void read_noeud(FILE *f, noeud *noeud) {
+  /* noeud* tmp = NULL; */
+  /* tmp = malloc(sizeof(noeud)); */
+  int c, occ;
+  fread(&c, sizeof(int), 1, f);
+  fread(&occ, sizeof(int), 1, f);
+  /* fread(noeud, sizeof(struct noeud), 1, f); */
+  noeud->c = c;
+  noeud->occ = occ;
+  printf("%d -c\n", noeud->c);
+  printf("%d -occ\n", noeud->occ);
 }
 
 void read_code(FILE *in, FILE *out, noeud **alphabet) {
@@ -171,7 +169,7 @@ void read_code(FILE *in, FILE *out, noeud **alphabet) {
             c = fgetc(in);
         }
 
-        for (j = 7; j >= 0; j--) {
+        for (j = 0; j <= 7; j++) {
             bit = c | (1 << j);
             if (parcours_arbre(bit, ptr_noeud)) {
                 fputc(ptr_noeud->c, out);
@@ -202,17 +200,19 @@ int test_FILEtag(FILE *f) {
 
 int parcours_arbre(int bit, noeud *ptr_noeud) {
     /* avance d'un noeud dans l'arbre selon le bit, renvoie 1 si on est a la fin de l'arbre, dc le noeud actuel est la valeur de l'encodage */
-    if (!ptr_noeud)
+    if (!ptr_noeud){
         fprintf(stderr, "erreur parcours_arbre pas censé etre ici\n");
+        return -1;
+    }
 
-    if (!bit) {
+    if (!bit && ptr_noeud) {
         if (ptr_noeud->gauche)
             ptr_noeud = ptr_noeud->gauche;
         else
             fprintf(stderr, "erreur parcours_arbre pas censé etre ici\n");
     }
 
-    if (bit) {
+    else if (bit && ptr_noeud) {
         if (ptr_noeud->droit)
             ptr_noeud = ptr_noeud->droit;
         else
@@ -241,7 +241,17 @@ void write_huffman(FILE *f, noeud **arbre) {
 
 void write_noeud(FILE *f, noeud *noeud) {
     /* printf("char n°%d :", noeud->c); */
-    fwrite(noeud, sizeof(struct noeud), 1, f);
+  int c, occ;
+  c = noeud->c;
+  occ = noeud->occ;
+  /* enc = noeud->enc; */
+  /* nb_bit= noeud->enc */
+
+  fwrite(&c, sizeof(int), 1, f);
+  fwrite(&occ, sizeof(int), 1, f);
+  /* fwrite(noeud, sizeof(struct noeud), 1, f); */
+  printf("%d -c\n", noeud->c);
+  printf("%d -occ\n", noeud->occ);
 }
 
 void write_code(FILE *in, FILE *out, noeud **alphabet) {
@@ -578,7 +588,7 @@ int main(int argc, char **argv) {
     /* On teste si on a suffisamment d'arguments ou si on veut une compression et une decompression en meme temps*/
     if (argc < 3 || (compression == 1 && decompression == 1)) usage(argc, argv);
     /* on essaye d'ouvrir le fichier, erreur sinon :*/
-    fin = fopen(argv[2], "r");
+    fin = fopen(argv[2], "rb");
     /* f = fopen(argv[1], "rb"); */
     if (!fin) {
         fprintf(stderr, "fichier impossible à ouvrir\n");
